@@ -1,15 +1,25 @@
-# SOC Intrusion Detection System
+# 🛡️ SOC Intrusion Detection & Campaign Analysis System
 
-Agentic AI-based SOC pipeline using ML and correlation agents.
+A **multi-stage SOC (Security Operations Center) analytics pipeline** for detecting, correlating, and summarizing cyber attacks from network flow data using Machine Learning.
 
-## Architecture
-Agent 1 → Binary ML → Agent 2 → Multiclass ML → Agent 3
+The system follows a hierarchical approach:
 
-## Features
-- Binary intrusion detection
-- Uncertainty reasoning
-- Multiclass classification
-- Campaign correlation
+> Flow-level Detection → Behavioral Correlation → Campaign-level Intelligence → (LLM-based Explanation)
 
-## Dataset
-UNSW-NB15
+---
+
+## 🚀 Features
+
+- Binary intrusion detection (Normal vs Attack)
+- Multiclass attack classification (Recon, Fuzzers, Exploits, etc.)
+- Modular preprocessing pipeline (UNSW-NB15 compatible)
+- Event abstraction layer (flow → security event)
+- Campaign-level correlation module
+- Anomaly detection *(in progress)*
+- Clustering-based campaign discovery *(in progress)*
+- LLM-based explanation *(planned)*
+
+
+
+
+

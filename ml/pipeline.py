@@ -7,6 +7,8 @@ from ml.core.event import Event
 from ml.core.model_loader import ModelLoader
 from ml.core.preprocessor import Preprocessor
 from ml.supervised.detector import SupervisedDetector
+from ml.campaign.builder import CampaignBuilder
+
 
 def run_pipeline(csv_path):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -48,6 +50,22 @@ def run_pipeline(csv_path):
         ev.attack_type = str(attack_types[i])
 
         events.append(ev)
+    print("[*] Building campaigns...")
+
+    builder = CampaignBuilder()
+    campaigns = builder.build_campaigns(events)
+
+    print("[*] Summarizing campaigns...")
+
+    summaries = [builder.summarize(c) for c in campaigns]
+
+    print("\n==============================")
+    print("   CAMPAIGN SUMMARIES")
+    print("==============================\n")
+
+    for s in summaries:
+        print(s.to_dict())
+
 
 
 
