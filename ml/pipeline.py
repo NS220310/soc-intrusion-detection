@@ -7,6 +7,7 @@ from ml.core.event import Event
 from ml.core.model_loader import ModelLoader
 from ml.core.preprocessor import Preprocessor
 from ml.supervised.detector import SupervisedDetector
+from ml.anomaly.anomaly_model import AnomalyDetector
 from ml.campaign.builder import CampaignBuilder
 
 
@@ -34,6 +35,10 @@ def run_pipeline(csv_path):
     print("[*] Running supervised models...")
     attack_probs, attack_types = detector.analyze(X)
 
+    print("[*] Running anomaly detection...")
+
+    anomaly_detector = AnomalyDetector()
+    anomaly_scores = anomaly_detector.predict(X)
 
     print("[*] Building Event objects...")
 
@@ -48,7 +53,7 @@ def run_pipeline(csv_path):
         ev = Event(flow_id)
         ev.attack_prob = float(attack_probs[i])
         ev.attack_type = str(attack_types[i])
-
+        ev.anomaly_score = float(anomaly_scores[i])
         events.append(ev)
     print("[*] Building campaigns...")
 
@@ -66,6 +71,9 @@ def run_pipeline(csv_path):
     for s in summaries:
         print(s.to_dict())
 
+    print("\n[*] Sample events after anomaly:")
+    for e in events[:5]:
+        print(e.to_dict())
 
 
 
