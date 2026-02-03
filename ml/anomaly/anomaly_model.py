@@ -9,12 +9,8 @@ class AnomalyDetector:
     def __init__(self, model_path):
         self.model = joblib.load(model_path)
 
-    def score(self, X):
-        """
-        Returns anomaly score per flow (higher = more anomalous).
-        """
-        scores = self.model.decision_function(X)
-        return -scores  # higher = more suspicious
+    def predict(self, X):
+        return self.model.decision_function(X)
 
 # Large positive	Highly anomalous
 # Small / negative	Normal

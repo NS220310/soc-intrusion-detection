@@ -4,15 +4,21 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.insert(0, PROJECT_ROOT)
 
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_PATH = os.path.join(BASE_DIR, "data", "raw", "UNSW_NB15_training-set.csv")
+
+
 import pandas as pd
 import joblib
-from preprocessing import preprocess_data
+from ml.preprocessing import preprocess_data
 from sklearn.ensemble import IsolationForest
 
 # -------------- CONFIG ---------------- #
 
 # DATA_PATH = "data/unsw_sample.csv"
-DATA_PATH = "D:/syllabus books VIT/Capstone/soc-intrusion-detection/data/raw/UNSW_NB15_training-set.csv"
+#DATA_PATH = "D:/syllabus books VIT/Capstone/soc-intrusion-detection/data/raw/UNSW_NB15_training-set.csv"
 
 MODEL_DIR = "ml/anomaly/models"
 MODEL_PATH = os.path.join(MODEL_DIR, "anomaly_model.pkl")

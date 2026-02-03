@@ -23,12 +23,6 @@ def run_pipeline(csv_path):
     print("[*] Loading CSV...")
     df = pd.read_csv(csv_path)
 
-    print("[*] Saving metadata columns...")
-    
-    times = df["stime"] if "stime" in df.columns else pd.Series(df.index)
-    srcips = df["srcip"] if "srcip" in df.columns else ["unknown"] * len(df)
-    dstips = df["dstip"] if "dstip" in df.columns else ["unknown"] * len(df)
-
     print("[*] Preprocessing features...")
     X = preprocessor.transform(df)
 
@@ -36,53 +30,58 @@ def run_pipeline(csv_path):
     attack_probs, attack_types = detector.analyze(X)
 
     print("[*] Running anomaly detection...")
-
-    anomaly_detector = AnomalyDetector()
+    anomaly_model_path = "ml/anomaly/models/anomaly_model.pkl"
+    anomaly_detector = AnomalyDetector(anomaly_model_path)
     anomaly_scores = anomaly_detector.predict(X)
 
     print("[*] Building Event objects...")
-
     events = []
+
     for i in range(len(df)):
-        # Use dataset 'id' column if exists, else row index
-        if "id" in df.columns:
-            flow_id = int(df["id"].iloc[i])
-        else:
-            flow_id = i
+        flow_id = int(df["id"].iloc[i]) if "id" in df.columns else i
 
         ev = Event(flow_id)
         ev.attack_prob = float(attack_probs[i])
         ev.attack_type = str(attack_types[i])
         ev.anomaly_score = float(anomaly_scores[i])
         events.append(ev)
-    print("[*] Building campaigns...")
 
-    builder = CampaignBuilder()
-    campaigns = builder.build_campaigns(events)
+    print("[*] Clustering campaigns...")
+    campaign_builder = CampaignBuilder(
+        eps=0.15,
+        min_samples=10
+    )
 
-    print("[*] Summarizing campaigns...")
+    campaigns = campaign_builder.build_campaigns(events)
 
-    summaries = [builder.summarize(c) for c in campaigns]
+    print(f"[+] Detected {len(campaigns)} campaigns\n")
 
-    print("\n==============================")
-    print("   CAMPAIGN SUMMARIES")
-    print("==============================\n")
+    # Campaign summaries
+    from collections import Counter
 
-    for s in summaries:
-        print(s.to_dict())
+    for cid, flows in campaigns.items():
+        avg_prob = sum(f["attack_prob"] for f in flows) / len(flows)
+        avg_anom = sum(f["anomaly_score"] for f in flows) / len(flows)
 
-    print("\n[*] Sample events after anomaly:")
+        attack_types = [f["attack_type"] for f in flows]
+        dominant_attack = Counter(attack_types).most_common(1)[0][0]
+
+        print({
+            "campaign_id": int(cid),
+            "size": len(flows),
+            "avg_attack_prob": round(avg_prob, 3),
+            "avg_anomaly_score": round(avg_anom, 3),
+            "dominant_attack_type": dominant_attack
+        })
+
+
+    print("\n[*] Sample events:")
     for e in events[:5]:
         print(e.to_dict())
 
-
-
-    print("[*] Done. Sample output:\n")
-    for e in events[:5]:
-        print(e.to_dict())
-
+    print("\n[*] Pipeline completed successfully.")
     return events
 
 
 if __name__ == "__main__":
-    events = run_pipeline("data/unsw_sample.csv")  # change path
+    run_pipeline("data/unsw_sample.csv")
