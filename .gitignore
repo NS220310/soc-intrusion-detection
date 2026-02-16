@@ -4,4 +4,5 @@ __pycache__/
 *.joblib
 *.h5
 *.csv
+*.pkl
 .env
